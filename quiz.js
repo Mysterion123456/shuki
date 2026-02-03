@@ -173,10 +173,19 @@ function successSequence() {
 
     setTimeout(() => {
         showFinalCard();
+        playMusic();
+        startConfetti();
     }, delay + 500);
 }
 
 function showFinalCard() {
+    // Add GIF to bottom right corner
+    const gif = document.createElement('img');
+    gif.src = 'assets/tenor.gif';
+    gif.alt = 'Volume';
+    gif.style.cssText = 'position: fixed; bottom: 20px; right: 20px; width: 100px; z-index: 100000; border-radius: 10px; box-shadow: 0 0 20px rgba(255, 0, 255, 0.5);';
+    document.body.appendChild(gif);
+
     gameArea.innerHTML = `
         <div class="final-card">
             <h1>❤️ TEST PASSED! ❤️</h1>
@@ -186,8 +195,77 @@ function showFinalCard() {
             <p style="font-size: 0.8rem; color: #ff00ff;">SESSION TERMINATED. LOVE IS ACTIVE.</p>
         </div>
     `;
+}
 
-    // Optional: Confetti Effect via simple CSS/JS or just generic celebration
+// Audio Logic
+function playMusic() {
+    const audio = new Audio('assets/song.mp3');
+    audio.volume = 0.4;
+    audio.currentTime = 53; // Start at 0:53
+    audio.play().catch(e => console.log("Audio play failed (user interaction needed?):", e));
+
+    audio.addEventListener('timeupdate', () => {
+        if (audio.currentTime >= 72) { // End at 1:12 (72s)
+            audio.currentTime = 53;
+            audio.play();
+        }
+    });
+}
+
+// Confetti Logic
+function startConfetti() {
+    // Simple canvas confetti implementation
+    const canvas = document.createElement('canvas');
+    canvas.style.position = 'fixed';
+    canvas.style.top = '0';
+    canvas.style.left = '0';
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+    canvas.style.zIndex = '99999';
+    canvas.style.pointerEvents = 'none';
+    document.body.appendChild(canvas);
+
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const pieces = [];
+    const colors = ['#ff00ff', '#d63384', '#ffffff', '#ff69b4'];
+
+    for (let i = 0; i < 150; i++) { // Reduced from 300
+        pieces.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height - canvas.height,
+            rotation: Math.random() * 360,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            size: Math.random() * 10 + 5,
+            speedY: Math.random() * 2 + 1, // Slower (was 3+2)
+            speedX: Math.random() * 2 - 1
+        });
+    }
+
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        pieces.forEach(p => {
+            p.y += p.speedY;
+            p.x += p.speedX;
+            p.rotation += 2;
+
+            ctx.save();
+            ctx.translate(p.x, p.y);
+            ctx.rotate(p.rotation * Math.PI / 180);
+            ctx.fillStyle = p.color;
+            ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+            ctx.restore();
+
+            if (p.y > canvas.height) {
+                p.y = -20;
+                p.x = Math.random() * canvas.width;
+            }
+        });
+        requestAnimationFrame(animate);
+    }
+    animate();
 }
 
 // Start

@@ -231,3 +231,42 @@ button {
     z-index: -2;
     opacity: 0.8;
 }
+
+/* Mobile Responsive Styles */
+@media (max-width: 768px) {
+    #custom-cursor {
+        display: none;
+    }
+
+    * {
+        cursor: auto !important;
+    }
+
+    .container {
+        width: 90%;
+        padding: 30px 20px;
+    }
+
+    h1 {
+        font-size: 2.5rem;
+    }
+
+    .buttons {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    button {
+        font-size: 1rem;
+        padding: 12px 35px;
+    }
+
+    #no-btn {
+        font-size: 1rem;
+    }
+
+    .side-photo {
+        width: 80px;
+        height: 80px;
+    }
+}
