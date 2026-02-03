@@ -1,0 +1,363 @@
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #0f050a;
+    /* Very dark pink/black */
+    color: #ff00ff;
+    /* Neon Pink */
+    font-family: 'Fira Code', monospace;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.terminal-container {
+    width: 80%;
+    max-width: 800px;
+    height: 80vh;
+    background: #1a0b14;
+    border: 2px solid #ff00ff;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(255, 0, 255, 0.4);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.terminal-header {
+    background: #331023;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    border-bottom: 2px solid #ff00ff;
+}
+
+.dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+.red {
+    background: #ff5f56;
+}
+
+.yellow {
+    background: #ffbd2e;
+}
+
+.green {
+    background: #27c93f;
+}
+
+.title {
+    margin-left: 15px;
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+.terminal-body {
+    padding: 20px;
+    flex-grow: 1;
+    overflow-y: auto;
+    font-size: 1.1rem;
+    text-shadow: 0 0 5px rgba(255, 0, 255, 0.5);
+    direction: ltr;
+    /* English */
+}
+
+.output p {
+    margin-bottom: 5px;
+    line-height: 1.5;
+}
+
+/* Questions */
+.question-block {
+    margin-top: 20px;
+    border-top: 1px dashed #d63384;
+    padding-top: 20px;
+    direction: ltr;
+    text-align: left;
+}
+
+.question-text {
+    font-weight: bold;
+    margin-bottom: 15px;
+    color: #fff;
+    text-shadow: none;
+}
+
+.option-btn {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: transparent;
+    border: 1px solid #d63384;
+    color: #ff00ff;
+    padding: 10px 15px;
+    margin-bottom: 10px;
+    font-family: 'Fira Code', monospace;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.option-btn:hover {
+    background: #ff00ff;
+    color: #1a0b14;
+    box-shadow: 0 0 10px #ff00ff;
+}
+
+.option-btn::before {
+    content: '> ';
+}
+
+/* Glitch / Shake Effect for Errors */
+.error {
+    color: red;
+    border-color: red;
+    animation: shake 0.4s;
+}
+
+@keyframes shake {
+    0% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-5px);
+    }
+
+    50% {
+        transform: translateX(5px);
+    }
+
+    75% {
+        transform: translateX(-5px);
+    }
+
+    100% {
+        transform: translateX(0);
+    }
+}
+
+/* Success Card */
+.final-card {
+    text-align: center;
+    direction: ltr;
+    margin-top: 50px;
+    animation: fadeIn 1s;
+}
+
+.final-card h1 {
+    font-size: 2.5rem;
+    color: #fff;
+    margin-bottom: 20px;
+}
+
+.final-card p {
+    color: #d63384;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #d63384;
+}
+
+/* --- Helper Characters --- */
+
+/* Animations: Flip Scale */
+@keyframes flipEntry {
+    0% {
+        transform: scale(0.5) rotateY(0deg);
+        opacity: 0;
+    }
+
+    50% {
+        transform: scale(1.1) rotateY(180deg);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(1) rotateY(360deg);
+        opacity: 1;
+    }
+}
+
+@keyframes floatAlive {
+    0% {
+        transform: translateY(0) rotate(0deg);
+    }
+
+    25% {
+        transform: translateY(-10px) rotate(5deg);
+    }
+
+    50% {
+        transform: translateY(-5px) rotate(0deg);
+    }
+
+    75% {
+        transform: translateY(-10px) rotate(-5deg);
+    }
+
+    100% {
+        transform: translateY(0) rotate(0deg);
+    }
+}
+
+/* Container Styles */
+.dog-container,
+.dustin-container,
+.luna-container {
+    position: fixed;
+    bottom: 0;
+    width: 200px;
+    /* Smaller (was 300px) */
+    z-index: 20000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: all 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    pointer-events: none;
+}
+
+/* Images */
+.dog-img,
+.dustin-img,
+.luna-img {
+    width: 100%;
+    filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.5));
+    /* The flip animation happens on the image when container shows */
+    opacity: 0;
+}
+
+/* Trigger animation when container has 'show' */
+.dog-container.show .dog-img,
+.dustin-container.show .dustin-img,
+.luna-container.show .luna-img {
+    animation: flipEntry 1s ease-out forwards, floatAlive 4s infinite ease-in-out 1s;
+    opacity: 1;
+}
+
+/* Speech Bubbles */
+.speech-bubble {
+    background: white;
+    color: black;
+    padding: 15px 25px;
+    border-radius: 30px;
+    position: absolute;
+    top: -100px;
+    width: 250px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: bold;
+    font-size: 1.1rem;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+    text-align: center;
+    direction: ltr;
+    border: 3px solid #ff00ff;
+    z-index: 20001;
+    opacity: 0;
+    transform: scale(0);
+    transition: all 0.5s ease-out 1s;
+    /* Pop in after 1s */
+}
+
+.dog-container.show .speech-bubble,
+.dustin-container.show .speech-bubble,
+.luna-container.show .speech-bubble {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.speech-bubble::after {
+    content: '';
+    position: absolute;
+    bottom: -15px;
+    border-width: 15px 15px 0;
+    border-style: solid;
+    display: block;
+    width: 0;
+}
+
+/* --- Specific Positioning --- */
+
+/* Dog (Right) */
+.dog-container {
+    right: -400px;
+}
+
+.dog-container.show {
+    right: 20%;
+    /* Moved well into screen */
+}
+
+.dog-container .speech-bubble {
+    right: 0;
+}
+
+.dog-container .speech-bubble::after {
+    right: 50px;
+    border-color: white transparent transparent transparent;
+}
+
+
+/* Dustin (Left) */
+.dustin-container {
+    left: -400px;
+}
+
+.dustin-container.show {
+    left: 20%;
+    /* Moved well into screen */
+}
+
+.dustin-container .speech-bubble {
+    left: 0;
+}
+
+.dustin-container .speech-bubble::after {
+    left: 50px;
+    border-color: white transparent transparent transparent;
+}
+
+/* Luna (Right) */
+.luna-container {
+    right: -400px;
+}
+
+.luna-container.show {
+    right: 20%;
+    /* Moved well into screen */
+}
+
+.luna-container .speech-bubble {
+    right: 0;
+}
+
+.luna-container .speech-bubble::after {
+    right: 50px;
+    border-color: white transparent transparent transparent;
+}
