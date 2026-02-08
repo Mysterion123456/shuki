@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRTP Study Plan</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #e4e4e4;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #00d4ff;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .stat-box {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px 25px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid rgba(0, 212, 255, 0.3);
+        }
+
+        .stat-number {
+            font-size: 2em;
+            color: #00d4ff;
+            font-weight: bold;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #aaa;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00d4ff, #00ff88);
+            border-radius: 15px;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #1a1a2e;
+        }
+
+        .week {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid rgba(0, 212, 255, 0.2);
+        }
+
+        .week-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .week-title {
+            color: #00d4ff;
+            font-size: 1.3em;
+        }
+
+        .week-hours {
+            color: #00ff88;
+            font-size: 0.9em;
+            background: rgba(0, 255, 136, 0.1);
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        .day {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+
+        .day-header {
+            color: #ffa500;
+            margin-bottom: 10px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .day-limit {
+            color: #888;
+            font-size: 0.85em;
+        }
+
+        .task {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            margin: 5px 0;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .task:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .task.completed {
+            opacity: 0.6;
+            text-decoration: line-through;
+        }
+
+        .task input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-left: 10px;
+            cursor: pointer;
+            accent-color: #00d4ff;
+        }
+
+        .task-type {
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-size: 0.8em;
+            margin-left: 10px;
+        }
+
+        .type-video {
+            background: #3498db;
+        }
+
+        .type-lab {
+            background: #e74c3c;
+        }
+
+        .task-duration {
+            color: #888;
+            font-size: 0.85em;
+            margin-right: auto;
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .deadline-banner {
+            background: linear-gradient(90deg, #e74c3c, #c0392b);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+
+        .countdown {
+            font-size: 1.5em;
+            margin-top: 5px;
+        }
+
+        .info-box {
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🎯 CRTP Study Plan</h1>
+        <p style="text-align:center;color:#888;margin-bottom:20px;">סילבוס מלא | התחלה: 15 בפברואר 2026</p>
+
+        <div class="info-box">📚 <strong>זמני לימוד:</strong> ראשון + שני (3 שעות כ"א) | שישי-שבת (6 שעות) | סה"כ: 12
+            שעות/שבוע</div>
+
+        <div class="deadline-banner">⏰ יעד: צפייה עד סרטון 26 לפני המעבדות<div class="countdown" id="countdown"></div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-box">
+                <div class="stat-number" id="videosWatched">0</div>
+                <div class="stat-label">סרטונים נצפו</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number" id="labsCompleted">0</div>
+                <div class="stat-label">מעבדות הושלמו</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number" id="hoursSpent">0</div>
+                <div class="stat-label">שעות למידה</div>
+            </div>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 0%">0%</div>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item"><span class="task-type type-video">📹</span> סרטון (~20 דק')</div>
+            <div class="legend-item"><span class="task-type type-lab">🔬</span> מעבדה (~3 שעות)</div>
+        </div>
+
+        <div id="schedule"></div>
+    </div>
+
+    <script>
+        const schedule = [
+            {
+                week: 1, startDate: "15/02/2026", totalHours: 12, days: [
+                    {
+                        day: "יום ראשון 15/02", limit: "3 שעות", tasks: [
+                            { type: "video", name: "01 - Introduction", duration: 20 },
+                            { type: "video", name: "02 - Active Directory", duration: 20 },
+                            { type: "video", name: "03 - PowerShell", duration: 20 },
+                            { type: "video", name: "04 - Offensive .NET", duration: 20 },
+                            { type: "video", name: "05 - The Lab Portal", duration: 20 },
+                            { type: "video", name: "06 - Methodology & Lab Environment", duration: 20 },
+                            { type: "video", name: "07 - Domain Enumeration", duration: 20 },
+                            { type: "video", name: "08 - Domain Enumeration - BloodHound", duration: 20 },
+                            { type: "video", name: "09 - Learning Objective 1", duration: 20 }
+                        ]
+                    },
+                    {
+                        day: "יום שני 16/02", limit: "3 שעות", tasks: [
+                            { type: "video", name: "10 - Domain Enumeration - ACLs", duration: 20 },
+                            { type: "video", name: "11 - Learning Objective 2", duration: 20 },
+                            { type: "video", name: "12 - Domain Enumeration - GPO, OU", duration: 20 },
+                            { type: "video", name: "13 - Learning Objective 3", duration: 20 },
+                            { type: "video", name: "14 - Domain Enumeration - Trusts", duration: 20 },
+                            { type: "video", name: "15 - Learning Objective 4", duration: 20 },
+                            { type: "video", name: "16 - Domain Enumeration - User Hunting", duration: 20 },
+                            { type: "video", name: "17 - Privilege Escalation", duration: 20 },
+                            { type: "video", name: "18 - Feature Abuse & LO5", duration: 20 }
+                        ]
+                    },
+                    {
+                        day: "שישי-שבת 20-21/02", limit: "6 שעות", tasks: [
+                            { type: "video", name: "19 - GPO Abuse", duration: 20 },
+                            { type: "video", name: "20 - Learning Objective 6", duration: 20 },
+                            { type: "video", name: "21 - PowerShell Remoting & Tradecraft", duration: 20 },
+                            { type: "video", name: "22 - Credential Extraction", duration: 20 },
+                            { type: "video", name: "23 - Lateral Movement - Mimikatz", duration: 20 },
+                            { type: "video", name: "24 - Learning Objective 7 - Part 1", duration: 20 },
+                            { type: "video", name: "25 - Learning Objective 7 - Part 2", duration: 20 },
+                            { type: "video", name: "26 - AD Domain Dominance & Kerberos", duration: 20 },
+                            { type: "lab", name: "🔬 Labs 1-7 (חלק א')", duration: 200 }
+                        ]
+                    }
+                ]
+            },
+            {
+                week: 2, startDate: "22/02/2026", totalHours: 12, days: [
+                    {
+                        day: "יום ראשון 22/02", limit: "3 שעות", tasks: [
+                            { type: "lab", name: "🔬 Labs 1-7 (חלק ב')", duration: 180 }
+                        ]
+                    },
+                    {
+                        day: "יום שני 23/02", limit: "3 שעות", tasks: [
+                            { type: "lab", name: "🔬 Labs 1-7 (חלק ג' - סיום)", duration: 180 }
+                        ]
+                    },
+                    {
+                        day: "שישי-שבת 27-28/02", limit: "6 שעות", tasks: [
+                            { type: "video", name: "27 - Golden Ticket", duration: 20 },
+                            { type: "video", name: "28 - Learning Objective 8", duration: 20 },
+                            { type: "lab", name: "🔬 Lab 8 - Golden Ticket", duration: 180 },
+                            { type: "video", name: "29 - Silver Ticket & LO9", duration: 20 },
+                            { type: "lab", name: "🔬 Lab 9 - Silver Ticket", duration: 120 }
+                        ]
+                    }
+                ]
+            },
+            {
+                week: 3, startDate: "01/03/2026", totalHours: 12, days: [
+                    {
+                        day: "יום ראשון 01/03", limit: "3 שעות", tasks: [
+                            { type: "video", name: "30 - Diamond Ticket & LO10", duration: 20 },
+                            { type: "lab", name: "🔬 Lab 10 - Diamond Ticket", duration: 150 }
+                        ]
+                    },
+                    {
+                        day: "יום שני 02/03", limit: "3 שעות", tasks: [
+                            { type: "video", name: "31 - Skeleton Key", duration: 20 },
+                            { type: "video", name: "32 - DSRM & LO11", duration: 20 },
+                            { type: "lab", name: "🔬 Lab 11 - DSRM", duration: 140 }
+                        ]
+                    },
+                    {
+                        day: "שישי-שבת 06-07/03", limit: "6 שעות", tasks: [
+                            { type: "video", name: "33 - Custom SSP", duration: 20 },
+                            { type: "video", name: "34 - Persistence ACLs & LO12", duration: 20 },
+                            { type: "lab", name: "🔬 Lab 12 - ACLs Persistence", duration: 180 },
+                            { type: "video", name: "35 - Security Descriptors & LO13", duration: 20 },
+                            { type: "lab", name: "🔬 Lab 13 - Security Descriptors", duration: 120 }
+                        ]
+                    }
+                ]
+            },
+            {
+                week: 4, startDate: "08/03/2026", totalHours: 12, days: [
+                    {
+                        day: "יום ראשון 08/03", limit: "3 שעות", tasks: [
+                            { type: "video", name: "36 - Kerberoasting", duration: 20 },
+                            { type: "video", name: "37 - Kerberos & Unconstrained Delegation", duration: 20 },
+                            { type: "video", name: "38 - Learning Objective 15", duration: 20 },
+                            { type: "lab", name: "🔬 Lab 15 - Unconstrained Delegation", duration: 120 }
+                        ]
+                    },
+                    {
+                        day: "יום שני 09/03", limit: "3 שעות", tasks: [
+                            { type: "video", name: "39 - Constrained Delegation & LO16", duration: 20 },
+                            { type: "lab", name: "🔬 Lab 16 - Constrained Delegation", duration: 160 }
+                        ]
+                    },
+                    {
+                        day: "שישי-שבת 13-14/03", limit: "6 שעות", tasks: [
+                            { type: "video", name: "40 - RBCD & LO17", duration: 20 },
+                            { type: "lab", name: "🔬 Lab 17 - RBCD", duration: 180 },
+                            { type: "video", name: "41 - Across Trusts & LO18", duration: 20 },
+                            { type: "lab", name: "🔬 Lab 18 - Cross Trust", duration: 140 }
+                        ]
+                    }
+                ]
+            },
+            {
+                week: 5, startDate: "15/03/2026", totalHours: 12, days: [
+                    {
+                        day: "יום ראשון 15/03", limit: "3 שעות", tasks: [
+                            { type: "video", name: "42 - Krbtgt Secret Abuse & LO19", duration: 20 },
+                            { type: "lab", name: "🔬 Lab 19 - Krbtgt Abuse", duration: 160 }
+                        ]
+                    },
+                    {
+                        day: "יום שני 16/03", limit: "3 שעות", tasks: [
+                            { type: "video", name: "43 - External Trusts & LO20", duration: 20 },
+                            { type: "lab", name: "🔬 Lab 20 - External Trusts", duration: 160 }
+                        ]
+                    },
+                    {
+                        day: "שישי-שבת 20-21/03", limit: "6 שעות", tasks: [
+                            { type: "video", name: "44 - AD CS & LO21", duration: 20 },
+                            { type: "lab", name: "🔬 Lab 21 - AD CS", duration: 180 },
+                            { type: "video", name: "45 - Trust Abuse - MSSQL Servers", duration: 20 },
+                            { type: "video", name: "46 - EDR - MDE & LO23", duration: 20 },
+                            { type: "lab", name: "🔬 Lab 23 - EDR Bypass", duration: 120 }
+                        ]
+                    }
+                ]
+            },
+            {
+                week: 6, startDate: "22/03/2026", totalHours: 1, days: [
+                    {
+                        day: "יום ראשון 22/03", limit: "30 דק'", tasks: [
+                            { type: "video", name: "47 - Detection, Defense & Conclusion", duration: 20 }
+                        ]
+                    }
+                ]
+            }
+        ];
+
+        function renderSchedule() {
+            const container = document.getElementById('schedule');
+            let html = '', taskIndex = 0;
+            schedule.forEach(week => {
+                html += `<div class="week"><div class="week-header"><span class="week-title">📅 שבוע ${week.week}</span><span class="week-hours">⏱️ ${week.totalHours} שעות</span></div>`;
+                week.days.forEach(day => {
+                    html += `<div class="day"><div class="day-header"><span>${day.day}</span><span class="day-limit">מקסימום: ${day.limit}</span></div>`;
+                    day.tasks.forEach(task => {
+                        const typeClass = task.type === 'video' ? 'type-video' : 'type-lab';
+                        const typeIcon = task.type === 'video' ? '📹' : '🔬';
+                        const durationText = task.duration >= 60 ? `${(task.duration / 60).toFixed(1)} שעות` : `${task.duration} דק'`;
+                        html += `<div class="task" id="task${taskIndex}"><input type="checkbox" id="check${taskIndex}" onchange="updateProgress()"><span class="task-type ${typeClass}">${typeIcon}</span><span>${task.name}</span><span class="task-duration">${durationText}</span></div>`;
+                        taskIndex++;
+                    });
+                    html += `</div>`;
+                });
+                html += `</div>`;
+            });
+            container.innerHTML = html;
+            loadProgress();
+        }
+
+        function updateProgress() {
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            let videos = 0, labs = 0, totalMinutes = 0, checked = 0;
+            checkboxes.forEach((cb, i) => {
+                if (cb.checked) {
+                    checked++; document.getElementById(`task${i}`).classList.add('completed');
+                    const task = getTaskByIndex(i);
+                    if (task.type === 'video') videos++; else labs++;
+                    totalMinutes += task.duration;
+                } else { document.getElementById(`task${i}`).classList.remove('completed'); }
+            });
+            document.getElementById('videosWatched').textContent = videos;
+            document.getElementById('labsCompleted').textContent = labs;
+            document.getElementById('hoursSpent').textContent = (totalMinutes / 60).toFixed(1);
+            const progress = Math.round((checked / checkboxes.length) * 100);
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('progressFill').textContent = progress + '%';
+            saveProgress();
+        }
+
+        function getTaskByIndex(index) {
+            let count = 0;
+            for (const week of schedule) for (const day of week.days) for (const task of day.tasks) { if (count === index) return task; count++; }
+        }
+
+        function saveProgress() { localStorage.setItem('crtp_progress_v2', JSON.stringify(Array.from(document.querySelectorAll('input[type="checkbox"]')).map(cb => cb.checked))); }
+        function loadProgress() { const saved = localStorage.getItem('crtp_progress_v2'); if (saved) { JSON.parse(saved).forEach((checked, i) => { const cb = document.getElementById(`check${i}`); if (cb && checked) cb.checked = true; }); updateProgress(); } }
+
+        function updateCountdown() {
+            const target = new Date('2026-03-22T23:59:59'), now = new Date(), diff = target - now;
+            if (diff > 0) { const days = Math.floor(diff / 86400000), hours = Math.floor((diff % 86400000) / 3600000); document.getElementById('countdown').textContent = `${days} ימים ו-${hours} שעות לסיום הקורס`; }
+            else { document.getElementById('countdown').textContent = '🎉 סיימת!'; }
+        }
+
+        renderSchedule(); updateCountdown(); setInterval(updateCountdown, 60000);
+    </script>
+</body>
+
+</html>
